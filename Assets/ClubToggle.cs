@@ -37,5 +37,6 @@ public class ClubToggle : MonoBehaviour
         Vector3 localPos = clubTransform.localPosition;
         localPos.z = defaultZOffset + sliderValue;
         clubTransform.localPosition = localPos;
+        Debug.Log("Slider value: " + clubTransform.localPosition + " (" + sliderValue + ")");
     }
 }

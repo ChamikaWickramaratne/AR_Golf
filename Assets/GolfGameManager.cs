@@ -84,6 +84,7 @@ public class GolfGameManager : MonoBehaviour
     {
         // Destroy current player's ball
         // Destroy(_balls[_currentPlayerIndex]);
+        Destroy(_balls[_currentPlayerIndex]);
         _balls[_currentPlayerIndex] = null;
 
         // Find next player with a ball

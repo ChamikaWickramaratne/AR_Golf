@@ -5,24 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 4755b35b590504809a7525fd2109c2e2
   - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
-    guid: 787c87d8cbf1d19479714a942fe68f6c
-  - enabled: 1
-    path: Assets/Scenes/GameModeSelect.unity
-    guid: ef816ff0fa9c15b468334aea8b47a6e1
-  - enabled: 1
-    path: Assets/Scenes/SinglePlayerGame.unity
-    guid: 1fa40a543f271ed4dafedea521c853c6
-  - enabled: 1
-    path: Assets/Scenes/Multiplayer.unity
-    guid: 257de279015099c4a9123cdb6963ddf5
-  - enabled: 1
-    path: Assets/Scenes/Options.unity
-    guid: 8c4b9736f0ba67747b6644fa6da15eee
+    path: Assets/Scenes/testTouch.unity
+    guid: a5e81f9d66143f34ab80e2dde44107a9
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}
