@@ -36,6 +36,8 @@ public class GolfGameManager : MonoBehaviour
         }
         Instance = this;
 
+        playerCount = GameSettings.PlayerCount;
+
         // Initialize stroke counts array
         _strokes = new int[playerCount];
         _pathBuilder = FindObjectOfType<ARPathBuilder>();
