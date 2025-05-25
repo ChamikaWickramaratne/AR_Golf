@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "AR Golf Test.sln"
+    "dotnet.defaultSolution": "AR_Golf.sln"
 }
