@@ -6,37 +6,18 @@ using UnityEngine;
 public class PathVisualizer : MonoBehaviour
 {
     public static PathVisualizer Instance { get; private set; }
-
-    [Header("Line Settings")]  
     [SerializeField] private LineRenderer line;
     [Range(2,50)] public int samplesPerSegment = 10;
-
-    [Header("Side Colliders")]
-    [Tooltip("Prefab: thin cube with BoxCollider, no MeshRenderer")]
     [SerializeField] private GameObject sideColliderPrefab;
-    [Tooltip("Thickness of each side collider (meters)")]
     [SerializeField] private float colliderThickness = 0.02f;
-    [Tooltip("Height of each side collider (meters)")]
     [SerializeField] private float colliderHeight = 0.1f;
-
-    [Header("Floor & Cap Colliders")]
-    [Tooltip("Prefab: thin cube with BoxCollider, no MeshRenderer")]
     [SerializeField] private GameObject floorColliderPrefab;
-    [Tooltip("Height of the floor collider (meters)")]
     [SerializeField] private float floorThickness = 0.02f;
-    [Tooltip("Depth of end cap collider along path direction (meters)")]
     [SerializeField] private float capThickness = 0.02f;
-    [Tooltip("Height of end cap collider (meters)")]
     [SerializeField] private float capHeight = 0.1f;
-
-    [Tooltip("Prefab for the hole; should include a trigger collider")]
     [SerializeField] private GameObject holePrefab;
-    [Tooltip("Vertical offset down from the end point for the hole (meters)")]
     [SerializeField] private float holeDepthOffset = 0.05f;
-
-    [Tooltip("How far forward along the last segment to place the hole")]   
     [SerializeField] private float holeForwardOffset = 0.1f;
-    [Tooltip("How far to the right (relative to path direction) to shift the hole (meters)")]   
     [SerializeField] private float holeSideOffset = -0.1f;
 
     private MeshCollider _meshCollider;
@@ -48,15 +29,14 @@ public class PathVisualizer : MonoBehaviour
 
     void Awake()
     {
+        //set starting values
         transform.SetParent(null, true);
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-
         if (line == null) line = GetComponent<LineRenderer>();
         line.useWorldSpace = true;
         line.enabled = false;
         line.positionCount = 0;
-
         _meshCollider = GetComponent<MeshCollider>() ?? gameObject.AddComponent<MeshCollider>();
         _bakedMesh = new Mesh();
     }
@@ -76,22 +56,25 @@ public class PathVisualizer : MonoBehaviour
             ClearColliders();
             return;
         }
-
+        // Get waypoints and add a catmulspline over each points
         var smooth = CatmullRomSpline(pts, samplesPerSegment);
         line.enabled = true;
         line.positionCount = smooth.Count;
         line.SetPositions(smooth.ToArray());
-
+        //add the mesh to the spline
         _bakedMesh.Clear();
         line.BakeMesh(_bakedMesh, false);
+        // add mesh collider
         _meshCollider.sharedMesh = _bakedMesh;
-
+        //spawn colliders in all the sides of the path
         SpawnSideColliders(smooth);
+        //spawn collider for the floor and spawn the hole at the end
         SpawnFloorAndCapColliders(smooth);
     }
 
     private void ClearColliders()
     {
+        // remove all colliders if users aet a new point
         foreach (var go in _sideColliders) Destroy(go);
         _sideColliders.Clear();
         foreach (var go in _floorColliders) Destroy(go);
@@ -100,10 +83,10 @@ public class PathVisualizer : MonoBehaviour
 
     private void SpawnSideColliders(List<Vector3> path)
     {
+        // add colliders for each side 
         foreach (var go in _sideColliders) Destroy(go);
         _sideColliders.Clear();
         if (sideColliderPrefab == null || path.Count < 2) return;
-
         for (int i = 0; i < path.Count - 1; i++)
         {
             Vector3 p0 = path[i]; Vector3 p1 = path[i+1];
@@ -111,14 +94,11 @@ public class PathVisualizer : MonoBehaviour
             Vector3 mid = (p0 + p1) * 0.5f;
             Vector3 forward = (p1 - p0).normalized;
             Vector3 normal = Vector3.Cross(Vector3.up, forward).normalized;
-
             Quaternion rot = Quaternion.LookRotation(forward, Vector3.up);
             Vector3 scale = new Vector3(colliderThickness, colliderHeight, len);
-
             var left = Instantiate(sideColliderPrefab, mid + normal * (line.startWidth * 0.5f), rot, transform);
             left.transform.localScale = scale;
             _sideColliders.Add(left);
-
             var right = Instantiate(sideColliderPrefab, mid - normal * (line.startWidth * 0.5f), rot, transform);
             right.transform.localScale = scale;
             _sideColliders.Add(right);
@@ -127,11 +107,10 @@ public class PathVisualizer : MonoBehaviour
 
     private void SpawnFloorAndCapColliders(List<Vector3> path)
     {
+        //add colliders for the floor
         foreach (var go in _floorColliders) Destroy(go);
         _floorColliders.Clear();
         if (floorColliderPrefab == null || path.Count < 2) return;
-
-        // Floor colliders under each segment
         for (int i = 0; i < path.Count - 1; i++)
         {
             Vector3 p0 = path[i]; Vector3 p1 = path[i+1];
@@ -145,9 +124,8 @@ public class PathVisualizer : MonoBehaviour
             floor.transform.localScale = floorScale;
             _floorColliders.Add(floor);
         }
-
+        //spawn a hole prefab at the end of the path
         CreateEndCap(path[0], path[1]);
-
         if (holePrefab != null)
         {
             Vector3 end      = path[^1];
@@ -166,7 +144,6 @@ public class PathVisualizer : MonoBehaviour
     private void CreateEndCap(Vector3 position, Vector3 neighbor)
     {
         Vector3 dir = (neighbor - position).normalized;
-        // Align cap forward with path direction
         Quaternion capRot = Quaternion.LookRotation(dir, Vector3.up);
         Vector3 capScale = new Vector3(line.startWidth, capHeight, capThickness);
         var cap = Instantiate(floorColliderPrefab, position, capRot, transform);
@@ -176,6 +153,7 @@ public class PathVisualizer : MonoBehaviour
 
     private List<Vector3> CatmullRomSpline(List<Vector3> pts, int samples)
     {
+        // add the catmulsplne over the points
         var result = new List<Vector3>();
         for (int i = 0; i < pts.Count - 1; i++)
         {
@@ -200,6 +178,7 @@ public class PathVisualizer : MonoBehaviour
 
     public void ClearAll()
     {
+        //reset everything
         if (_spawnedHole != null)
         {
             Destroy(_spawnedHole);
@@ -210,11 +189,5 @@ public class PathVisualizer : MonoBehaviour
         line.enabled = false;
         line.positionCount = 0;
         _meshCollider.sharedMesh = null;
-    }
-
-    void LateUpdate()
-    {
-        // Force the visualizer’s rotation back to identity every frame
-        transform.rotation = Quaternion.identity;
     }
 }

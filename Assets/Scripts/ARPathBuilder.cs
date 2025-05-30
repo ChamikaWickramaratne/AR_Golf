@@ -16,7 +16,6 @@ public class ARPathBuilder : MonoBehaviour
     private ARRaycastManager _raycastManager;
     private List<Vector3> _points = new List<Vector3>();
     private GameObject _spawnedBall; 
-    [Tooltip("Drag your club GameObject here (the child of AR Camera)")]
     public GameObject club;
     private float? groundY = null;
     private List<GameObject> _waypointInstances = new List<GameObject>();
@@ -38,41 +37,43 @@ public class ARPathBuilder : MonoBehaviour
         
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
-
+        //only place when club is not active
         if(!club.activeSelf){
             if (touch.press.wasPressedThisFrame)
             {
                 Vector2 screenPos = touch.position.ReadValue();
 
                 var hits = new List<ARRaycastHit>();
+                //raycast the touch position
                 if (_raycastManager.Raycast(screenPos, hits, TrackableType.All))
                 {
+                    //if touch positiion is a surface
                     var pose = hits[0].pose;
+                    //static y so the ball wont roll without hitting it
                     if (groundY == null)
                         groundY = pose.position.y;
                     pose.position.y = groundY.Value;
+                    //add point to list
                     _points.Add(pose.position);
+                    //add waypoint
                     var wp = Instantiate(waypointPrefab, pose.position, Quaternion.identity);
                     _waypointInstances.Add(wp);
+                    //initiate path visualizer
                     PathVisualizer.Instance.SetControlPoints(_points);
+                    //if 2 points start game
                     if (_points.Count == 2 && golfBallPrefab != null && _spawnedBall == null)
                     {
+                        //initiate game
                         Vector3 start   = _points[0];
                         Vector3 next    = _points[1];
                         Vector3 forward = (next - start).normalized;
 
-                        // Move the spawn position forward along the path, plus a small vertical lift
                         Vector3 spawnPos = start 
                                             + forward * insideOffset 
                                             + Vector3.up  * verticalOffset;
 
-                        // Hand off to the game manager
                         GolfGameManager.Instance.SetupHole(spawnPos);
                     }
-                }
-                else
-                {
-                    Debug.Log("[Direct] Raycast returned no hits");
                 }
             }
         }

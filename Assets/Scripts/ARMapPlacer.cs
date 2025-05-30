@@ -12,10 +12,8 @@ public class ARMapPlacer : MonoBehaviour
     private ARRaycastManager _raycastManager;
     private bool _mapPlaced = false;
     static List<ARRaycastHit> _hits = new List<ARRaycastHit>();
-    [Tooltip("Drag your club GameObject here (the child of AR Camera)")]
     public GameObject club;
     private GameObject map;
-    [Tooltip("How far inside the map to spawn the ball")]
     public float ballInsideOffset = 0.2f;
 
     void Awake()
@@ -25,6 +23,7 @@ public class ARMapPlacer : MonoBehaviour
 
     void Update()
     {
+        //only place 1 map
         if (_mapPlaced) return;
 
         var screen = Touchscreen.current;
@@ -33,28 +32,32 @@ public class ARMapPlacer : MonoBehaviour
         var touch = screen.primaryTouch;
         if (touch == null || !touch.press.wasPressedThisFrame) return;
 
-        // Only block if that *finger* is over a UI element
         int id = touch.touchId.ReadValue();
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(id))
             return;
 
+        //get touch position
         Vector2 touchPos = touch.position.ReadValue();
+        //only place when club is not active
         if (!club.activeSelf &&
             _raycastManager.Raycast(touchPos, _hits, TrackableType.PlaneWithinPolygon))
         {
             var hitPose = _hits[0].pose;
             var rotated = hitPose.rotation * Quaternion.Euler(0f, 0f, 180f);
+            //instantiate map
             map = Instantiate(mapPrefab, hitPose.position, hitPose.rotation);
             _mapPlaced = true;
-
+            //Get positiion the spawn ball
             Vector3 insidePos = map.transform.position
                                 + map.transform.forward * ballInsideOffset
                                 + Vector3.up * 0.05f;
+            //initiate game
             GolfGameManager.Instance.SetupHole(insidePos);
         }
     }
 
     public void ClearAll()
+    //clear everything
     {
         if(map){
             Destroy(map);

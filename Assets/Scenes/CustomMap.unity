@@ -9473,7 +9473,7 @@ MonoBehaviour:
   capHeight: 1
   holePrefab: {fileID: 2226067299172541659, guid: 03d717368396fcc49a206a852cf79f8e,
     type: 3}
-  holeDepthOffset: 0.05
+  holeDepthOffset: 0.09
   holeForwardOffset: 0.1
   holeSideOffset: -0.1
 --- !u!120 &2108048513

@@ -5,23 +5,23 @@ public class GameModeSelector : MonoBehaviour
 {
     public void LoadSinglePlayer()
     {
-        SceneManager.LoadScene("testTouch");
+        SceneManager.LoadScene("PremadeMap");
     }
 
     public void LoadMultiplayer2Player()
     {
         GameSettings.PlayerCount = 2;
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("CustomMap");
     }
     public void LoadMultiplayer3Player()
     {
         GameSettings.PlayerCount = 3;
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("CustomMap");
     }
     public void LoadMultiplayer4Player()
     {
         GameSettings.PlayerCount = 4;
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("CustomMap");
     }
     public void BackToMenu()
     {

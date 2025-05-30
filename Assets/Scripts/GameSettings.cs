@@ -4,6 +4,6 @@ using UnityEngine;
 
 public static class GameSettings
 {
-    // Default player count if nothing’s set before the scene loads
+    // Player count for UI
     public static int PlayerCount = 1;
 }
